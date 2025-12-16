@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Click Game</title>
+</head>
+<body>
+
+<div id="login">
+  <input id="usn" placeholder="Enter USN">
+  <button onclick="start()">Start</button>
+</div>
+
+<div id="game" style="display:none">
+  <h2 id="score">Score: 0</h2>
+  <button onclick="clickBtn()">CLICK</button>
+  <button onclick="submit()">Submit Score</button>
+</div>
+
+<h3>Leaderboard</h3>
+<ol id="board"></ol>
+
+<script>
+let score = 0;
+let usn = "";
+
+const API = "https://throbbing-heart-3051.ayolahbisa13.workers.dev/"; // replace
+
+function start() {
+  usn = document.getElementById("usn").value.trim();
+  if (!usn) return;
+  document.getElementById("login").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  loadBoard();
+}
+
+function clickBtn() {
+  score++;
+  document.getElementById("score").innerText = "Score: " + score;
+}
+
+async function submit() {
+  await fetch(API + "/submit", {
+    method: "POST",
+    body: JSON.stringify({ usn, score })
+  });
+  score = 0;
+  document.getElementById("score").innerText = "Score: 0";
+  loadBoard();
+}
+
+async function loadBoard() {
+  const res = await fetch(API + "/leaderboard");
+  const data = await res.json();
+  const ol = document.getElementById("board");
+  ol.innerHTML = "";
+  data.forEach(e => {
+    const li = document.createElement("li");
+    li.textContent = `${e.usn} - ${e.score}`;
+    ol.appendChild(li);
+  });
+}
+</script>
+
+</body>
+</html>
